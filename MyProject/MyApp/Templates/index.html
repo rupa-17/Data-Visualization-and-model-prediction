@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Custom File Upload</title>
+    <style>
+        /* Basic Page Styling */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Montserrat', sans-serif; 
+        }
+        
+        body {
+            background-size: cover; 
+            color: #061F56; /* Neon Cyan */
+            text-align: center;
+            font-family : 'Montserrat';
+            
+            background:linear-gradient(120deg, #00C8C8, #FFC9A9, #FFC9A9 , #BFFFFF);
+        }
+
+        .front-end {    
+                 
+            display: flex;
+            flex-direction: column;
+            justify-content: top;
+            align-items: center;
+            
+            height: 79vh;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: none;
+
+            /*border : 3px #FF00FF solid;*/
+            padding: 30px 20px;
+            color: #061F56;
+        }
+        .nav-left {
+            display: flex;
+            align-items: center;
+            margin-left : 40px;
+        }
+        .nav-left img {
+            width: 50px;
+            height: 50px;
+            margin-right: 30px;
+            border-radius: 50%;
+            border : 2px black solid;
+        }
+        .nav-right{
+            margin-right: 40px;
+        }
+        .nav-right a {
+            color : #061F56;
+            text-decoration: none;
+            margin: 0 15px;
+            font-size: 18px;
+            font-weight: 430;
+            -webkit-text-stroke: 1.1px ; 
+            letter-spacing: 0.6px;
+        }
+        .nav-right a:hover {
+            text-decoration: underline;
+            color : #061F56;
+            text-decoration-thickness: 2.5px;
+        }
+        .title-name{
+            font-size: 40px;
+            font-weight: 900;
+            -webkit-text-stroke: 4px ; 
+            letter-spacing: 4px;
+            margin-top : 10px;
+        }
+        .file-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 10px; 
+            width: 80vw;
+            margin-top : 80px;
+        }
+
+        /* Custom input field */
+        .file-name-input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid black;
+            border-radius: 5px;
+            cursor: pointer;
+            flex-grow: 1;
+            background-color: #FFFFFF;
+            color: black;
+            font-size: 18px;
+        }
+
+        .upload-button {
+            padding: 10px 15px;
+            background: navy;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            white-space: nowrap;
+            font-weight: bold;
+            transition: 0.3s ease-in-out;
+        }
+
+        .upload-button:hover {
+            background: navy;
+            color: white;
+        }
+
+        /* Styling for dropdown */
+        .dropdown {
+            position: absolute;
+            top: 100%;
+            left: 12%;
+            width: 63%;
+            justify-content: center;
+            display: none;
+            background:white; /* Semi-transparent dark overlay */
+            backdrop-filter: blur(100px); /* Blurs content behind */
+            border: 2px solid #00FFFF;
+            border-radius: 5px;
+            z-index: 100; /* Ensure dropdown is on top */
+            transition: all 0.3s ease-in-out;
+        }
+        
+        .dropdown-content a {
+            display: block;
+            padding: 12px;
+            text-decoration: none;
+            color: black; /* Neon Cyan */
+            font-weight: bold;
+            cursor: pointer;
+            background: white;
+            transition: background 0.3s ease-in-out, color 0.3s ease-in-out;
+        }
+
+        .dropdown-content a:hover {
+            color: #008CFF;
+        }
+
+
+        .show-dropdown {
+            display: block;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        /* Styling for Data Visualization and Model Prediction Buttons */
+        .action-buttons {
+            margin-top: 20px;
+            display: flex;
+            gap: 15px;
+            width: 80vw;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .action-button {
+            padding: 12px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            color: white;
+            font-weight: bold;
+            transition: 0.3s ease-in-out;
+            text-transform: uppercase;
+        }
+
+        .data-visualization {
+            background: #D9F6FF;
+            
+            border : 2px #00C8C8 solid;
+            color : black;
+            
+        }
+
+        .data-visualization:hover {
+            background:  #008CFF;
+            
+        }
+
+        .model-prediction {
+            background:#D9F6FF;
+            
+            border : 2px #00C8C8 solid;
+            color: black;
+        }
+
+        .model-prediction:hover {
+            background: #008CFF;
+            
+            color: white;
+        }
+        h2{
+            margin-top: -30px;
+            font-size: 40px;
+            font-weight: 900;
+            -webkit-text-stroke: 4px ; 
+            letter-spacing: 4px;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="navbar">
+        <div class="nav-left">
+            <img src="logo.png" alt="Project Logo">
+            <h2 class="title-name">VIZ PREDICT</h2>
+        </div>
+        <div class="nav-right">
+            <a href="#">Home</a>
+            <a href="#">Contact</a>
+            <a href="#">Login</a>
+            <a href="#">Sign Up</a>
+        </div>
+    </div>
+    <div class="front-end">
+
+        
+
+    <!-- File Input & Button Side by Side -->
+    <form id="uploadForm" action="/upload/" method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+    <div class="file-container">
+        <input type="file" id="fileInput" name="file" onchange="displayFileName()">
+        <input type="text" id="fileNameInput" class="file-name-input" placeholder="No file selected" readonly>
+        <button class="upload-button" onclick="toggleDropdown()">Select File Type</button>
+        
+        <!-- Dropdown Menu Below Input -->
+        <div class="dropdown" id="fileDropdown">
+            <div class="dropdown-content">
+                <a onclick="setFileType('.csv')">CSV Files (.csv)</a>
+                <a onclick="setFileType('.txt')">Text Files (.txt)</a>
+                <a onclick="setFileType('.xls,.xlsx')">Excel Files (.xls, .xlsx)</a>
+                <a onclick="setFileType('.ods')">OpenDocument Spreadsheet (.ods)</a>
+                <a onclick="setFileType('.json')">JSON Files (.json)</a>
+                <a onclick="setFileType('.xml')">XML Files (.xml)</a>
+            </div>
+        </div>
+    </div> 
+
+    <input type="hidden" id="actionType" name="action_type">
+
+    <div class="action-buttons">
+        <button class="action-button data-visualization" type="submit" onclick="submitForm('visualization',event)">Data Visualization</button>
+        <button class="action-button model-prediction" type="submit" onclick="submitForm('prediction',event)">Model Prediction</button>
+    </div>
+
+    </form>  
+    </div>
+
+    <script>
+        // Toggle dropdown visibility
+        function toggleDropdown() {
+            let dropdown = document.getElementById("fileDropdown");
+            dropdown.classList.toggle("show-dropdown"); // Toggle visibility
+        }
+
+        // Show dropdown when input is clicked
+        document.getElementById("fileNameInput").addEventListener("click", function () {
+            toggleDropdown();
+        });
+
+        function setFileType(allowedTypes) {
+            let fileInput = document.getElementById("fileInput");
+            fileInput.setAttribute("accept", allowedTypes);
+            fileInput.click(); // Open file picker
+
+            // Keep dropdown open until a file is selected
+            fileInput.onchange = function () {
+                displayFileName();
+                document.getElementById("fileDropdown").classList.remove("show-dropdown"); // Close dropdown after selection
+            };
+        }
+
+        function displayFileName() {
+            let fileInput = document.getElementById("fileInput");
+            let fileNameInput = document.getElementById("fileNameInput");
+
+            if (fileInput.files.length > 0) {
+                fileNameInput.value = fileInput.files[0].name; // Show file name in input field
+            } else {
+                fileNameInput.value = "";
+            }
+        }
+
+        // Close dropdown if clicked outside
+        document.addEventListener("click", function(event) {
+            let dropdown = document.getElementById("fileDropdown");
+            let fileNameInput = document.getElementById("fileNameInput");
+            let button = document.querySelector(".upload-button");
+
+            if (!dropdown.contains(event.target) && !button.contains(event.target) && event.target !== fileNameInput) {
+                dropdown.classList.remove("show-dropdown");
+            }
+        });
+
+        function submitForm(action, event) {
+            event.preventDefault();
+            document.getElementById("actionType").value = action;  // Set the hidden input value
+            console.log("Submitting form with action:", action); // Debugging
+            document.getElementById("uploadForm").submit();  // Submit form
+        }
+        function dataVisualization() {
+            alert("Data Visualization button clicked!");
+        }
+
+        function modelPrediction() {
+            alert("Model Prediction button clicked!");
+        }
+    </script>
+
+</body>
+</html>
